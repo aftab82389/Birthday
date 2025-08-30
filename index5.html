@@ -1,0 +1,185 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>New Adventures Message</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
+
+/* Fade in/out for page */
+body {
+  font-family: 'Baloo 2', cursive;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+body.loaded {
+  opacity: 1;
+}
+
+/* Cards animation */
+@keyframes slideUpFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--rotation));
+  }
+}
+.animate-slideUpFadeIn {
+  animation: slideUpFadeIn 0.4s ease forwards;
+}
+
+/* Button styles */
+#button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+  margin-top: 2rem;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(90deg, #ff3dbb, #7a5fff);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+#button.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Cards container */
+.main {
+  display: flex;
+  flex-flow: column;
+  position: relative;
+  align-items: center;
+}
+#newCard{
+  height: 260px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+#newCard .card{
+  position: absolute;
+  top: 0;
+  height: 220px;
+  width: 240px;
+}
+#messagesContainer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+#messageCard{
+  cursor: pointer;
+}
+</style>
+</head>
+<body class="bg-black flex flex-col items-center justify-center min-h-screen p-4">
+
+<div class="main">
+  <div id="newCard"></div>
+
+  <div id="messagesContainer">
+    <div id="messageCard" class="rounded-xl bg-pink-200 border border-pink-300 p-6 text-center cursor-pointer select-none">
+      <div class="text-3xl mb-2">❤️</div>
+      <p id="remainingMsg" class="text-pink-700 font-semibold text-base sm:text-lg">✨Click to see messages✨</p>
+    </div>
+  </div>
+
+  <button id="button">
+    Continue the Magic
+    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+</div>
+
+<script>
+const messagesContainer = document.getElementById('newCard');
+const remainingMsg = document.getElementById('remainingMsg');
+const button = document.getElementById('button');
+let remaining = 4;
+
+// Fade in page
+window.onload = () => {
+  document.body.classList.add("loaded");
+};
+
+function goToNextPage(nextUrl, delay = 2000){
+  setTimeout(()=>{
+    document.body.classList.remove("loaded"); // fade out
+    setTimeout(()=>{
+      window.location.href = nextUrl;
+    },1500);
+  }, delay);
+}
+
+remainingMsg.addEventListener('click', () => {
+  if(remaining > 0){
+    remaining--;
+    remainingMsg.textContent = `✨${remaining} messages remaining✨`;
+
+    const quotes = [
+      'You bring so much joy and happiness to everyone around you! Your smile lights up every room.',
+      'May all your dreams come true and your year be filled with magic!',
+      "You're absolutely wonderful and deserve all the happiness in the world!",
+      "You're absolutely amazing and deserve all the dreams in your life"
+    ];
+    const title = ['Dream Big 😇', 'New Adventures', "You're amazing😍", 'With Love 😘'];
+    const bgcolor = ['pink', 'yellow', 'blue', 'green'];
+    const rotate = [0, 3, 6, 9];
+
+    const newCard = document.createElement('div');
+    newCard.className = `card rounded-xl bg-${bgcolor[remaining]}-400 border border-${bgcolor[remaining]}-600 p-6 text-center cursor-pointer select-none opacity-0`;
+    newCard.style.setProperty("--rotation", `${rotate[remaining]}deg`);
+    newCard.innerHTML = `
+      <div class="text-2xl mb-2 font-bold text-pink-700">${title[remaining]}</div>
+      <p class="text-white font-semibold text-base sm:text-lg">${quotes[remaining]}</p>
+      <div class="bottom-3 left-3 text-white text-2xl select-none">✨</div>
+    `;
+    messagesContainer.appendChild(newCard);
+
+    requestAnimationFrame(()=>{
+      newCard.classList.add('animate-slideUpFadeIn');
+
+      // Confetti burst
+      const rect = newCard.getBoundingClientRect();
+      confetti({
+        particleCount: 120,
+        spread: 90,
+        startVelocity: 60,
+        origin: {
+          x: (rect.left + rect.width/2)/window.innerWidth,
+          y: (rect.top + rect.height/2)/window.innerHeight
+        }
+      });
+    });
+
+    if(remaining === 0){
+      remainingMsg.style.cursor = 'default';
+      remainingMsg.style.userSelect = 'none';
+      button.classList.add('show');
+
+      // Optional: automatic redirect after 5 seconds
+      goToNextPage('index4.html', 5000);
+    }
+  }
+});
+
+// Redirect on button click immediately
+button.addEventListener('click', ()=>{
+  goToNextPage('index4.html', 500);
+});
+</script>
+
+</body>
+</html>
