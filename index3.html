@@ -1,0 +1,205 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Your Birthday Surprise is Here</title>
+<link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    rel="stylesheet"
+/>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height:100%;
+    background:#000;
+    font-family: 'Comic Neue', cursive;
+    overflow:hidden;
+    color:#cbb6f7;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:2rem 1.5rem 4rem;
+    transition: opacity 1s ease; /* fade-out transition */
+  }
+
+  body.fade-out { opacity:0; }
+
+  #confetti-canvas {
+    position:fixed;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .container {
+    position:relative;
+    z-index:10;
+    max-width:400px;
+    width:100%;
+    text-align:center;
+  }
+
+  .gift-circle {
+    margin:0 auto 1.5rem;
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #d96aff, #7a5fff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 0 20px #a46affaa;
+    animation: animate .9s linear infinite;
+  }
+  @keyframes animate {
+    0%,100%{ transform:rotate(5deg) scale(1.1); }
+    50%{ transform:rotate(-5deg) scale(1); }
+  }
+  .gift-circle i{ font-size:55px; color:#ffe; font-weight:550; }
+
+  h1 { font-size:3.5rem; line-height:1.1; color:#d996ff; text-shadow:0 0 10px #d996ffaa; margin-bottom:0.3rem; }
+  p.subtitle { font-size:1.25rem; color:#cbb6f7; margin-bottom:2.5rem; text-shadow:0 0 6px #bfa6f7aa; }
+
+  button.celebrate-btn {
+    background:linear-gradient(90deg, #ff3dbb, #7a5fff);
+    border:none;
+    border-radius:9999px;
+    padding:0.75rem 3rem;
+    font-size:1.25rem;
+    font-weight:700;
+    color:white;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:0.75rem;
+    box-shadow:0 0 15px #b46affcc;
+    transition: opacity 1s ease, filter 0.3s ease;
+    user-select:none;
+    opacity:0; /* start hidden */
+  }
+  button.celebrate-btn.show { opacity:1; } /* fade-in */
+  button.celebrate-btn:hover { filter:brightness(1.15); }
+
+  p.bottom-text { margin-top:2rem; font-size:1.125rem; color:#cbb6f7; text-shadow:0 0 6px #bfa6f7aa; }
+  .watermark { position:fixed; bottom:1rem; right:1rem; font-size:0.875rem; color:#a07affcc; user-select:none; z-index:20; }
+
+  @media(max-width:400px){
+    h1{ font-size:2.5rem; }
+    .gift-circle{ width:120px; height:120px; }
+    button.celebrate-btn{ font-size:1rem; padding:0.6rem 2rem; }
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+  <div class="gift-circle"><i class="ri-gift-line"></i></div>
+
+  <h1>Time to<br>Celebrate!</h1>
+  <p class="subtitle">The countdown is over... Let's celebrate! 🎉</p>
+
+  <button class="celebrate-btn" aria-label="Let's Celebrate button with gift icon and sparkle">
+    <i class="ri-gift-line"></i>
+    Let's Celebrate! ✨
+  </button>
+
+  <p class="bottom-text">Click to start the magic! ✨</p>
+</div>
+
+<div class="watermark">@aftabbuilds</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let W,H;
+function resize(){ W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; }
+resize(); window.addEventListener('resize',resize);
+
+class ConfettiParticle{
+  constructor(){
+    this.colors=['#d96aff','#ff3dbb','#f9e547','#a27aff','#ff6ec4'];
+    this.x=Math.random()*W;
+    this.y=Math.random()*H-H;
+    this.size=7+Math.random()*5;
+    this.color=this.colors[Math.floor(Math.random()*this.colors.length)];
+    this.speed=1+Math.random()*1;
+    this.angle=Math.random()*2*Math.PI;
+    this.angleSpeed=0.02+Math.random()*0.04;
+    this.tilt=Math.random()*10;
+    this.tiltSpeed=0.1+Math.random()*0.2;
+    this.opacity=0.7+Math.random()*0.3;
+    this.shape=Math.random()<0.7?'rect':'circle';
+  }
+  update(){
+    this.y+=this.speed;
+    this.x+=Math.sin(this.angle)*2;
+    this.angle+=this.angleSpeed;
+    this.tilt+=this.tiltSpeed;
+    if(this.y>H){ this.y=-this.size; this.x=Math.random()*W; }
+    if(this.x>W+this.size){ this.x=-this.size; }
+    if(this.x<-this.size){ this.x=W+this.size; }
+  }
+  draw(ctx){
+    ctx.save();
+    ctx.globalAlpha=this.opacity;
+    ctx.translate(this.x,this.y);
+    ctx.rotate(this.tilt*Math.PI/180);
+    ctx.fillStyle=this.color;
+    if(this.shape==='rect'){ ctx.fillRect(-this.size/2,-this.size/2,this.size,this.size*0.4); }
+    else{ ctx.beginPath(); ctx.arc(0,0,this.size/2,0,2*Math.PI); ctx.fill(); }
+    ctx.restore();
+  }
+}
+
+const confettiCount=150;
+const confettiParticles=[];
+for(let i=0;i<confettiCount;i++){ confettiParticles.push(new ConfettiParticle()); }
+
+function animate(){
+  ctx.clearRect(0,0,W,H);
+  confettiParticles.forEach(p=>{ p.update(); p.draw(ctx); });
+  requestAnimationFrame(animate);
+}
+animate();
+// Button fade-in after 2 seconds
+const button=document.querySelector('.celebrate-btn');
+setTimeout(()=>{ button.classList.add('show'); }, 2000);
+
+// Sparkle particles for burst effect
+class Sparkle{
+  constructor(x,y){ this.x=x; this.y=y; this.size=3+Math.random()*3; this.life=30+Math.random()*20; this.remainingLife=this.life; this.speedX=(Math.random()-0.5)*6; this.speedY=(Math.random()-0.5)*6; this.color='#fff'; }
+  update(){ this.x+=this.speedX; this.y+=this.speedY; this.remainingLife--; this.size*=0.95; }
+  draw(ctx){ ctx.save(); ctx.globalAlpha=this.remainingLife/this.life; ctx.fillStyle=this.color; ctx.beginPath(); ctx.moveTo(this.x,this.y); for(let i=0;i<5;i++){ ctx.lineTo(this.x+this.size*Math.cos((18+i*72)*Math.PI/180), this.y+this.size*Math.sin((18+i*72)*Math.PI/180)); ctx.lineTo(this.x+this.size/2*Math.cos((54+i*72)*Math.PI/180), this.y+this.size/2*Math.sin((54+i*72)*Math.PI/180)); } ctx.closePath(); ctx.fill(); ctx.restore(); }
+}
+let sparkles=[];
+function sparkleBurst(x,y){ for(let i=0;i<30;i++){ sparkles.push(new Sparkle(x,y)); } }
+
+// Button click: sparkle + fade out to next page
+button.addEventListener('click',()=>{
+  const rect=button.getBoundingClientRect();
+  const x=rect.left+rect.width/2;
+  const y=rect.top+rect.height/2;
+  sparkleBurst(x,y);
+
+  document.body.classList.add('fade-out');
+  setTimeout(()=>{ window.location.href='index4.html'; },1000);
+});
+
+// Extend animation loop to include sparkles
+function animateWithSparkles(){
+  ctx.clearRect(0,0,W,H);
+  confettiParticles.forEach(p=>{ p.update(); p.draw(ctx); });
+  sparkles.forEach((s,i)=>{ s.update(); s.draw(ctx); if(s.remainingLife<=0) sparkles.splice(i,1); });
+  requestAnimationFrame(animateWithSparkles);
+}
+animateWithSparkles();
+</script>
+</body>
+</html>
